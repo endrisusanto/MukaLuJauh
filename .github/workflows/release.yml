@@ -7,37 +7,20 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag / Release version (e.g. v0.1.1)'
+        description: 'Tag / Release version (e.g. v0.1.2)'
         required: false
-        default: 'v0.1.1'
+        default: 'v0.1.2'
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
-    name: Build (${{ matrix.target }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Linux x86_64
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            binary_name: mukalujauh
-            archive_format: tar.gz
-          # Windows x86_64
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            binary_name: mukalujauh.exe
-            archive_format: zip
-          # macOS ARM64
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            binary_name: mukalujauh
-            archive_format: tar.gz
-
+  # ---------------------------------------------------------------------------
+  # 🐧 Ubuntu / Linux Job: Builds .deb and .tar.gz
+  # ---------------------------------------------------------------------------
+  build-linux:
+    name: Linux Packages (.deb & .tar.gz)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,28 +28,26 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
 
       - name: Build Release Binary
-        run: |
-          cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release
 
-      - name: Package Binary (Unix)
-        if: matrix.archive_format == 'tar.gz'
+      - name: Build Debian .deb Package
         run: |
-          cd target/${{ matrix.target }}/release
-          tar -czf ../../../mukalujauh-${{ matrix.target }}.tar.gz ${{ matrix.binary_name }}
-          cd ../../..
-          sha256sum mukalujauh-${{ matrix.target }}.tar.gz > mukalujauh-${{ matrix.target }}.tar.gz.sha256
+          cargo deb --no-build
+          cp target/debian/*.deb ./mukalujauh-amd64.deb
+          sha256sum mukalujauh-amd64.deb > mukalujauh-amd64.deb.sha256
 
-      - name: Package Binary (Windows)
-        if: matrix.archive_format == 'zip'
-        shell: pwsh
+      - name: Build Portable .tar.gz
         run: |
-          cd target/${{ matrix.target }}/release
-          Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ../../../mukalujauh-${{ matrix.target }}.zip
-          cd ../../..
-          Get-FileHash -Algorithm SHA256 mukalujauh-${{ matrix.target }}.zip | ForEach-Object { "$($_.Hash)  mukalujauh-${{ matrix.target }}.zip" } | Out-File -Encoding ascii mukalujauh-${{ matrix.target }}.zip.sha256
+          cd target/release
+          tar -czf ../../mukalujauh-linux-x86_64.tar.gz mukalujauh
+          cd ../..
+          sha256sum mukalujauh-linux-x86_64.tar.gz > mukalujauh-linux-x86_64.tar.gz.sha256
 
       - name: Determine Release Tag
         id: release_tag
@@ -75,16 +56,130 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.1' }}"
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.2' }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Upload Artifacts to Release
+      - name: Upload Linux Artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           files: |
-            mukalujauh-${{ matrix.target }}.*
+            mukalujauh-amd64.deb
+            mukalujauh-amd64.deb.sha256
+            mukalujauh-linux-x86_64.tar.gz
+            mukalujauh-linux-x86_64.tar.gz.sha256
           generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  # ---------------------------------------------------------------------------
+  # 🪟 Windows Job: Builds NSIS .exe Setup Installer & .zip
+  # ---------------------------------------------------------------------------
+  build-windows:
+    name: Windows Packages (.exe Setup & .zip)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build Release Binary
+        run: cargo build --release
+
+      - name: Build NSIS Setup Installer (.exe)
+        shell: pwsh
+        run: |
+          makensis.exe packaging\windows\installer.nsi
+          Get-FileHash -Algorithm SHA256 mukalujauh-windows-x86_64-installer.exe | ForEach-Object { "$($_.Hash)  mukalujauh-windows-x86_64-installer.exe" } | Out-File -Encoding ascii mukalujauh-windows-x86_64-installer.exe.sha256
+
+      - name: Build Portable .zip
+        shell: pwsh
+        run: |
+          cd target\release
+          Compress-Archive -Path mukalujauh.exe -DestinationPath ..\..\mukalujauh-windows-x86_64.zip
+          cd ..\..
+          Get-FileHash -Algorithm SHA256 mukalujauh-windows-x86_64.zip | ForEach-Object { "$($_.Hash)  mukalujauh-windows-x86_64.zip" } | Out-File -Encoding ascii mukalujauh-windows-x86_64.zip.sha256
+
+      - name: Determine Release Tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.2' }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Upload Windows Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          files: |
+            mukalujauh-windows-x86_64-installer.exe
+            mukalujauh-windows-x86_64-installer.exe.sha256
+            mukalujauh-windows-x86_64.zip
+            mukalujauh-windows-x86_64.zip.sha256
+          draft: false
+          prerelease: false
+
+  # ---------------------------------------------------------------------------
+  # 🍎 macOS Job: Builds .dmg Disk Image & .tar.gz
+  # ---------------------------------------------------------------------------
+  build-macos:
+    name: macOS Packages (.dmg & .tar.gz)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Build Release Binary
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Build macOS DMG Disk Image
+        run: |
+          mkdir -p dmg_root
+          cp target/aarch64-apple-darwin/release/mukalujauh dmg_root/
+          cp README.md dmg_root/
+          hdiutil create -volname "MukaLuJauh" -srcfolder dmg_root -ov -format UDZO mukalujauh-macos-arm64.dmg
+          shasum -a 256 mukalujauh-macos-arm64.dmg > mukalujauh-macos-arm64.dmg.sha256
+
+      - name: Build Portable .tar.gz
+        run: |
+          cd target/aarch64-apple-darwin/release
+          tar -czf ../../../mukalujauh-macos-arm64.tar.gz mukalujauh
+          cd ../../..
+          shasum -a 256 mukalujauh-macos-arm64.tar.gz > mukalujauh-macos-arm64.tar.gz.sha256
+
+      - name: Determine Release Tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.2' }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Upload macOS Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          files: |
+            mukalujauh-macos-arm64.dmg
+            mukalujauh-macos-arm64.dmg.sha256
+            mukalujauh-macos-arm64.tar.gz
+            mukalujauh-macos-arm64.tar.gz.sha256
           draft: false
           prerelease: false

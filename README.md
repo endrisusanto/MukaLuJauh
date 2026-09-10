@@ -7,6 +7,19 @@
 
 ---
 
+## 📥 Download & GUI Installers
+
+Tersedia installer siap pakai untuk setiap sistem operasi di halaman [**Releases**](https://github.com/endrisusanto/MukaLuJauh/releases):
+
+| OS | Format Installer | Cara Install |
+|---|---|---|
+| 🐧 **Ubuntu / Debian** | **`mukalujauh-amd64.deb`** | `sudo dpkg -i mukalujauh-amd64.deb` (atau double click file `.deb`) |
+| 🪟 **Windows (10/11)** | **`mukalujauh-windows-x86_64-installer.exe`** | Double-click Setup Wizard Installer (GUI NSIS) |
+| 🍎 **macOS (Apple Silicon)** | **`mukalujauh-macos-arm64.dmg`** | Double-click `.dmg` dan drag ke Applications |
+| 📦 **Portable Binaries** | `.tar.gz` / `.zip` | Ekstrak dan jalankan langsung tanpa instalasi |
+
+---
+
 ## ✨ Features
 
 - **Blazing Fast & Ultra Lightweight:** Ditulis menggunakan Rust murni dengan konsumsi RAM dan CPU sangat rendah.
@@ -14,80 +27,32 @@
 - **AES-256-GCM Encrypted Storage:** Vektor embedding 512-dimensi disimpan dalam bentuk terenkripsi kuat.
 - **Multi-Angle Head Enrollment:** Merekam 9 sudut pose kepala dan menghitung *centroid* vektor untuk akurasi tinggi.
 - **Anti-Spoofing / Liveness Check:** Mendeteksi micro-motion 3D, kedipan mata (*Eye Aspect Ratio*), pantulan cahaya (*glare*), dan deteksi frame layar HP (*bezel cue*).
-- **Multi-Platform Support:** Siap dijalankan di **Ubuntu (Linux via PAM / systemd-logind)** dan **Windows**.
 
 ---
 
-## 📦 Project Structure
+## 🛠️ CLI Commands
 
-```
-mukalujauh/
-├── .github/
-│   └── workflows/
-│       └── release.yml          # CI/CD multi-OS automated binary release
-├── scripts/
-│   └── bump_and_release.sh      # Script auto version bump, commit, tag & push
-├── src/
-│   ├── main.rs                  # CLI entrypoint & commands
-│   ├── model.rs                 # 512-d Face vectors & centroid math
-│   ├── pipeline.rs              # Cosine similarity face matching
-│   ├── liveness.rs              # Anti-spoofing engine (motion, glare, bezel)
-│   ├── crypto.rs                # AES-256-GCM encryption & key derivation
-│   ├── config.rs                # Settings & TOML configuration manager
-│   └── auth.rs                  # OS lock screen & PAM hooks
-├── Cargo.toml
-└── README.md
+Setelah diinstal, perintah `mukalujauh` dapat dipanggil dari terminal / PowerShell:
+
+```bash
+# 1. Daftarkan wajah baru (9 sudut pose)
+mukalujauh enroll --name "Endri"
+
+# 2. Tes verifikasi wajah & liveness check
+mukalujauh verify
+
+# 3. List profil wajah terdaftar
+mukalujauh list
+
+# 4. Jalankan daemon pemantau lock screen
+mukalujauh daemon
 ```
 
 ---
 
-## 🛠️ CLI Usage
-
-### 1. Inisialisasi & Daftar Wajah (Enrollment)
-```bash
-# Daftarkan wajah Anda dengan 9 sudut pose
-cargo run -- enroll --name "Endri"
-```
-
-### 2. Cek Verifikasi Wajah (Verification Test)
-```bash
-cargo run -- verify
-```
-
-### 3. List Profil Terdaftar
-```bash
-cargo run -- list
-```
-
-### 4. Background Daemon (Lock Screen Monitor)
-```bash
-cargo run -- daemon
-```
-
----
-
-## 🚀 Automated Version Bump & GitHub Release
-
-Script `scripts/bump_and_release.sh` secara otomatis:
-1. Menghitung kenaikan versi SemVer (`patch`, `minor`, `major`).
-2. Mengupdate `Cargo.toml` & memvalidasi build `cargo check`.
-3. Membuat auto conventional commit (contoh: `chore(release): bump version to v0.1.1`).
-4. Membuat Git tag (`v0.1.1`).
-5. Mem-push commit dan tag ke repo [endrisusanto/MukaLuJauh](https://github.com/endrisusanto/MukaLuJauh).
-6. Memicu GitHub Actions untuk build binary `.tar.gz` (Linux/macOS) & `.zip` (Windows) beserta checksum SHA256.
+## 🚀 Rilis Versi Baru (Auto Bump & Release)
 
 ```bash
-# Auto bump patch (0.1.0 -> 0.1.1)
+# Otomatis naikkan patch (misal: v0.1.2) & trigger build installer multi-OS
 ./scripts/bump_and_release.sh patch
-
-# Auto bump minor (0.1.0 -> 0.2.0)
-./scripts/bump_and_release.sh minor
-
-# Custom version
-./scripts/bump_and_release.sh v1.0.0 "feat(release): first production ready release"
 ```
-
----
-
-## 📄 License
-MIT License.

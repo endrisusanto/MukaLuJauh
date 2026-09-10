@@ -1,6 +1,6 @@
 [package]
 name = "mukalujauh"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Endri Susanto <endri@example.com>"]
 description = "Fast, privacy-first Face Unlock for Linux (Ubuntu) & Windows inspired by Glance"
@@ -35,3 +35,25 @@ windows-sys = { version = "0.59", features = ["Win32_System_SystemInformation", 
 [[bin]]
 name = "mukalujauh"
 path = "src/main.rs"
+
+# Debian / Ubuntu .deb package metadata
+[package.metadata.deb]
+maintainer = "Endri Susanto <endri@example.com>"
+copyright = "2026 Endri Susanto"
+license-file = ["LICENSE", "4"]
+extended-description = """\
+Fast, privacy-first Face Unlock for Linux (Ubuntu/Debian) & Windows inspired by Glance.
+Uses on-device face embedding matching with liveness anti-spoofing detection."""
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/mukalujauh", "usr/local/bin/mukalujauh", "755"],
+    ["README.md", "usr/share/doc/mukalujauh/README", "644"],
+]
+
+# Fedora / RHEL .rpm package metadata
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/mukalujauh", dest = "/usr/local/bin/mukalujauh", mode = "755" },
+    { source = "README.md", dest = "/usr/share/doc/mukalujauh/README.md", mode = "644" }
+]
