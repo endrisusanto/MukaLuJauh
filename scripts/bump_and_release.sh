@@ -108,12 +108,17 @@ echo -e "${BLUE}🏷️  Creating tag ${TAG_NAME}...${NC}"
 git tag -a "$TAG_NAME" -m "Release ${TAG_NAME}" -f
 
 # 10. Push to GitHub
-echo -e "\n${GREEN}🚀 Ready to push commit & tag to GitHub repository!${NC}"
+echo -e "\n${GREEN}🚀 Pushing commit & tag to GitHub repository!${NC}"
 echo -e "Remote: ${YELLOW}https://github.com/endrisusanto/MukaLuJauh${NC}"
 echo -e "Command: ${BLUE}git push origin main --tags${NC}\n"
 
-read -p "Push to GitHub now? (y/N): " -n 1 -r
-echo
+if [ -n "$CI" ] || [ "$AUTO_PUSH" = "true" ] || [ ! -t 0 ]; then
+    REPLY="y"
+else
+    read -p "Push to GitHub now? (y/N): " -n 1 -r
+    echo
+fi
+
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     git push origin main --tags || git push origin HEAD --tags
     echo -e "\n${GREEN}🎉 Successfully pushed! GitHub Actions CI/CD has been triggered.${NC}"
