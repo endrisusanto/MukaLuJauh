@@ -1,7 +1,7 @@
 !include "MUI2.nsh"
 
 Name "MukaLuJauh"
-OutFile "mukalujauh-windows-x86_64-installer.exe"
+OutFile "..\..\mukalujauh-windows-x86_64-installer.exe"
 InstallDir "$PROGRAMFILES64\MukaLuJauh"
 InstallDirRegKey HKLM "Software\MukaLuJauh" "InstallDir"
 RequestExecutionLevel admin
@@ -19,16 +19,16 @@ RequestExecutionLevel admin
 
 Section "Install"
   SetOutPath "$INSTDIR"
-  File "target\release\mukalujauh.exe"
-  File "README.md"
-  File "LICENSE"
+  File "..\..\target\release\mukalujauh.exe"
+  File "..\..\README.md"
+  File "..\..\LICENSE"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\MukaLuJauh" "InstallDir" "$INSTDIR"
 
   # Register in Windows Add/Remove Programs
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "DisplayName" "MukaLuJauh - Face Unlock"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "DisplayVersion" "0.1.3"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "DisplayVersion" "0.1.5"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "Publisher" "Endri Susanto"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "UninstallString" "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "QuietUninstallString" "$INSTDIR\uninstall.exe /S"

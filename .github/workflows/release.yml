@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag / Release version (e.g. v0.1.4)'
+        description: 'Tag / Release version (e.g. v0.1.5)'
         required: false
-        default: 'v0.1.4'
+        default: 'v0.1.5'
 
 permissions:
   contents: write
@@ -56,7 +56,7 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.4' }}"
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.5' }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
@@ -101,10 +101,6 @@ jobs:
       - name: Build NSIS Setup Installer (.exe)
         shell: pwsh
         run: |
-          if (!(Test-Path "target\release\mukalujauh.exe") -and (Test-Path "target\x86_64-pc-windows-msvc\release\mukalujauh.exe")) {
-            New-Item -ItemType Directory -Force -Path "target\release"
-            Copy-Item "target\x86_64-pc-windows-msvc\release\mukalujauh.exe" "target\release\mukalujauh.exe"
-          }
           & "C:\Program Files (x86)\NSIS\makensis.exe" packaging\windows\installer.nsi
           Get-FileHash -Algorithm SHA256 mukalujauh-windows-x86_64-installer.exe | ForEach-Object { "$($_.Hash)  mukalujauh-windows-x86_64-installer.exe" } | Out-File -Encoding ascii mukalujauh-windows-x86_64-installer.exe.sha256
 
@@ -123,7 +119,7 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.4' }}"
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.5' }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
@@ -179,7 +175,7 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.4' }}"
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.5' }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 

@@ -1,6 +1,6 @@
 [package]
 name = "mukalujauh"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Endri Susanto <endri@example.com>"]
 description = "Fast, privacy-first Face Unlock for Linux (Ubuntu) & Windows inspired by Glance"
