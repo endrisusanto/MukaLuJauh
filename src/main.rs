@@ -3,6 +3,7 @@
 mod auth;
 mod config;
 mod crypto;
+mod gui;
 mod liveness;
 mod model;
 mod pipeline;
@@ -11,6 +12,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use config::ConfigManager;
 use crypto::SecureFaceStore;
+use gui::GuiServer;
 use liveness::{LivenessAnalyzer, LivenessDecision, LivenessFrameInput};
 use model::{EnrolledSample, FaceIdentity};
 use pipeline::FaceRecognitionPipeline;
@@ -23,11 +25,20 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[command(about = "Fast, Privacy-first Face Unlock for Linux (Ubuntu) & Windows", long_about = None)]
 struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Launch the interactive GUI Dashboard & Enrollment Studio (default)
+    Gui {
+        /// Port to bind the local dashboard
+        #[arg(short, long, default_value_t = 9527)]
+        port: u16,
+        /// Do not open the browser automatically
+        #[arg(long, default_value_t = false)]
+        no_browser: bool,
+    },
     /// Enroll a new face identity by capturing head poses
     Enroll {
         /// Name of the person to enroll
@@ -113,7 +124,16 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let config = ConfigManager::load_config();
 
-    match cli.command {
+    let cmd = cli.command.unwrap_or(Commands::Gui {
+        port: 9527,
+        no_browser: false,
+    });
+
+    match cmd {
+        Commands::Gui { port, no_browser } => {
+            GuiServer::run(port, !no_browser)?;
+        }
+
         Commands::Info => {
             println!("🚀 MukaLuJauh - Face Unlock System");
             println!("Version:          {}", env!("CARGO_PKG_VERSION"));
