@@ -7,16 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag / Release version (e.g. v0.1.5)'
+        description: 'Tag / Release version (e.g. v0.1.8)'
         required: false
-        default: 'v0.1.5'
+        default: 'v0.1.8'
 
 permissions:
   contents: write
 
 jobs:
   # ---------------------------------------------------------------------------
-  # 🐧 Ubuntu / Linux Job: Builds .deb and .tar.gz
+  # 🐧 Ubuntu / Linux Job: Builds .deb and .tar.gz with Version Suffix
   # ---------------------------------------------------------------------------
   build-linux:
     name: Linux Packages (.deb & .tar.gz)
@@ -38,22 +38,6 @@ jobs:
       - name: Install cargo-deb
         run: cargo install cargo-deb
 
-      - name: Build Release Binary
-        run: cargo build --release
-
-      - name: Build Debian .deb Package
-        run: |
-          cargo deb --no-build
-          cp target/debian/*.deb ./mukalujauh-amd64.deb
-          sha256sum mukalujauh-amd64.deb > mukalujauh-amd64.deb.sha256
-
-      - name: Build Portable .tar.gz
-        run: |
-          cd target/release
-          tar -czf ../../mukalujauh-linux-x86_64.tar.gz mukalujauh
-          cd ../..
-          sha256sum mukalujauh-linux-x86_64.tar.gz > mukalujauh-linux-x86_64.tar.gz.sha256
-
       - name: Determine Release Tag
         id: release_tag
         shell: bash
@@ -61,25 +45,41 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.5' }}"
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.8' }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build Release Binary
+        run: cargo build --release
+
+      - name: Build Debian .deb Package
+        run: |
+          cargo deb --no-build
+          cp target/debian/*.deb ./mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-amd64.deb
+          sha256sum mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-amd64.deb > mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-amd64.deb.sha256
+
+      - name: Build Portable .tar.gz
+        run: |
+          cd target/release
+          tar -czf ../../mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-x86_64.tar.gz mukalujauh
+          cd ../..
+          sha256sum mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-x86_64.tar.gz > mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-x86_64.tar.gz.sha256
 
       - name: Upload Linux Artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           files: |
-            mukalujauh-amd64.deb
-            mukalujauh-amd64.deb.sha256
-            mukalujauh-linux-x86_64.tar.gz
-            mukalujauh-linux-x86_64.tar.gz.sha256
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-amd64.deb
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-amd64.deb.sha256
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-x86_64.tar.gz
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-linux-x86_64.tar.gz.sha256
           generate_release_notes: true
           draft: false
           prerelease: false
 
   # ---------------------------------------------------------------------------
-  # 🪟 Windows Job: Builds NSIS .exe Setup Installer & .zip
+  # 🪟 Windows Job: Builds NSIS .exe Setup Installer & .zip with Version Suffix
   # ---------------------------------------------------------------------------
   build-windows:
     name: Windows Packages (.exe Setup & .zip)
@@ -100,23 +100,6 @@ jobs:
             echo "$nsisPath" >> $env:GITHUB_PATH
           }
 
-      - name: Build Release Binary
-        run: cargo build --release
-
-      - name: Build NSIS Setup Installer (.exe)
-        shell: pwsh
-        run: |
-          & "C:\Program Files (x86)\NSIS\makensis.exe" packaging\windows\installer.nsi
-          Get-FileHash -Algorithm SHA256 mukalujauh-windows-x86_64-installer.exe | ForEach-Object { "$($_.Hash)  mukalujauh-windows-x86_64-installer.exe" } | Out-File -Encoding ascii mukalujauh-windows-x86_64-installer.exe.sha256
-
-      - name: Build Portable .zip
-        shell: pwsh
-        run: |
-          cd target\release
-          Compress-Archive -Path mukalujauh.exe -DestinationPath ..\..\mukalujauh-windows-x86_64.zip
-          cd ..\..
-          Get-FileHash -Algorithm SHA256 mukalujauh-windows-x86_64.zip | ForEach-Object { "$($_.Hash)  mukalujauh-windows-x86_64.zip" } | Out-File -Encoding ascii mukalujauh-windows-x86_64.zip.sha256
-
       - name: Determine Release Tag
         id: release_tag
         shell: bash
@@ -124,24 +107,42 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.5' }}"
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.8' }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build Release Binary
+        run: cargo build --release
+
+      - name: Build NSIS Setup Installer (.exe)
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\NSIS\makensis.exe" packaging\windows\installer.nsi
+          Move-Item mukalujauh-windows-x86_64-installer.exe mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64-setup.exe
+          Get-FileHash -Algorithm SHA256 mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64-setup.exe | ForEach-Object { "$($_.Hash)  mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64-setup.exe" } | Out-File -Encoding ascii mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64-setup.exe.sha256
+
+      - name: Build Portable .zip
+        shell: pwsh
+        run: |
+          cd target\release
+          Compress-Archive -Path mukalujauh.exe -DestinationPath ..\..\mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64.zip
+          cd ..\..
+          Get-FileHash -Algorithm SHA256 mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64.zip | ForEach-Object { "$($_.Hash)  mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64.zip" } | Out-File -Encoding ascii mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64.zip.sha256
 
       - name: Upload Windows Artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           files: |
-            mukalujauh-windows-x86_64-installer.exe
-            mukalujauh-windows-x86_64-installer.exe.sha256
-            mukalujauh-windows-x86_64.zip
-            mukalujauh-windows-x86_64.zip.sha256
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64-setup.exe
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64-setup.exe.sha256
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64.zip
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-windows-x86_64.zip.sha256
           draft: false
           prerelease: false
 
   # ---------------------------------------------------------------------------
-  # 🍎 macOS Job: Builds .dmg Disk Image & .tar.gz
+  # 🍎 macOS Job: Builds .dmg Disk Image & .tar.gz with Version Suffix
   # ---------------------------------------------------------------------------
   build-macos:
     name: macOS Packages (.dmg & .tar.gz)
@@ -155,6 +156,17 @@ jobs:
         with:
           targets: aarch64-apple-darwin
 
+      - name: Determine Release Tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.8' }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
       - name: Build Release Binary
         run: cargo build --release --target aarch64-apple-darwin
 
@@ -163,35 +175,24 @@ jobs:
           mkdir -p dmg_root
           cp target/aarch64-apple-darwin/release/mukalujauh dmg_root/
           cp README.md dmg_root/
-          hdiutil create -volname "MukaLuJauh" -srcfolder dmg_root -ov -format UDZO mukalujauh-macos-arm64.dmg
-          shasum -a 256 mukalujauh-macos-arm64.dmg > mukalujauh-macos-arm64.dmg.sha256
+          hdiutil create -volname "MukaLuJauh" -srcfolder dmg_root -ov -format UDZO mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.dmg
+          shasum -a 256 mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.dmg > mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.dmg.sha256
 
       - name: Build Portable .tar.gz
         run: |
           cd target/aarch64-apple-darwin/release
-          tar -czf ../../../mukalujauh-macos-arm64.tar.gz mukalujauh
+          tar -czf ../../../mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.tar.gz mukalujauh
           cd ../../..
-          shasum -a 256 mukalujauh-macos-arm64.tar.gz > mukalujauh-macos-arm64.tar.gz.sha256
-
-      - name: Determine Release Tag
-        id: release_tag
-        shell: bash
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-          else
-            TAG="${{ github.event.inputs.tag_name || 'v0.1.5' }}"
-          fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          shasum -a 256 mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.tar.gz > mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.tar.gz.sha256
 
       - name: Upload macOS Artifacts to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           files: |
-            mukalujauh-macos-arm64.dmg
-            mukalujauh-macos-arm64.dmg.sha256
-            mukalujauh-macos-arm64.tar.gz
-            mukalujauh-macos-arm64.tar.gz.sha256
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.dmg
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.dmg.sha256
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.tar.gz
+            mukalujauh-${{ steps.release_tag.outputs.tag }}-macos-arm64.tar.gz.sha256
           draft: false
           prerelease: false

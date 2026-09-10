@@ -6,193 +6,161 @@
   <title>MukaLuJauh - Face Unlock Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-base: #090a0f;
-      --bg-card: rgba(18, 20, 29, 0.7);
-      --bg-card-hover: rgba(28, 31, 46, 0.85);
-      --accent: #00f2fe;
-      --accent-grad: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-      --accent-green: #00f5a0;
-      --accent-red: #ff3366;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-active: rgba(0, 242, 254, 0.4);
-      --text-main: #f0f4f8;
-      --text-muted: #8e9bb0;
-      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --bg-base: #0c0d12;
+      --bg-surface: #13151b;
+      --bg-panel: #181a22;
+      --bg-hover: #20232e;
+      --border: #292d3a;
+      --border-focus: #4b5368;
+      --accent: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 4px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg-base);
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.12) 0%, transparent 50%),
-        radial-gradient(circle at 100% 100%, rgba(79, 172, 254, 0.08) 0%, transparent 40%);
       color: var(--text-main);
       font-family: var(--font);
       min-height: 100vh;
-      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-bottom: 60px;
+      padding: 20px;
     }
 
-    /* Top Floating Dynamic Island / Notch Bar */
-    .notch-container {
-      position: sticky;
-      top: 16px;
-      z-index: 1000;
-      margin-bottom: 30px;
-      perspective: 1000px;
-    }
-
-    .notch-pill {
-      background: #000;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 9999px;
-      padding: 8px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.2);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      cursor: pointer;
-    }
-
-    .notch-pill.scanning {
-      padding: 12px 28px;
-      border-color: var(--accent);
-      box-shadow: 0 10px 40px rgba(0, 242, 254, 0.35);
-    }
-
-    .notch-pill.success {
-      border-color: var(--accent-green);
-      box-shadow: 0 10px 40px rgba(0, 245, 160, 0.4);
-    }
-
-    .notch-icon {
-      width: 22px;
-      height: 22px;
-      fill: var(--accent);
-      transition: transform 0.3s ease;
-    }
-
-    .notch-status {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-
-    /* Main App Layout */
-    .app-wrapper {
-      width: 92%;
-      max-width: 1050px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .header-bar {
+    /* Minimal Top Status Bar (Replaces glowing notch with clean box) */
+    .top-status-bar {
+      width: 100%;
+      max-width: 1020px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
+      margin-bottom: 20px;
+      font-family: var(--font-mono);
+      font-size: 13px;
     }
 
-    .brand-title {
-      font-size: 26px;
-      font-weight: 800;
-      background: var(--accent-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      background: #1e222d;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--accent-green);
+    }
+
+    /* App Container */
+    .app-container {
+      width: 100%;
+      max-width: 1020px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Minimal Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      font-family: var(--font-mono);
     }
 
-    .nav-tabs {
+    /* Tabs */
+    .tabs-nav {
       display: flex;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 4px;
+      gap: 4px;
+      background: var(--bg-surface);
+      padding: 3px;
       border: 1px solid var(--border);
+      border-radius: var(--radius);
     }
 
-    .nav-tab {
-      padding: 8px 18px;
-      border-radius: 8px;
-      border: none;
+    .tab-btn {
       background: transparent;
+      border: none;
       color: var(--text-muted);
       font-family: var(--font);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
+      padding: 8px 16px;
+      border-radius: var(--radius);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
-    .nav-tab.active {
-      background: var(--accent-grad);
-      color: #000;
-      box-shadow: 0 4px 12px rgba(0, 242, 254, 0.3);
+    .tab-btn.active {
+      background: var(--bg-panel);
+      color: #fff;
+      border: 1px solid var(--border);
     }
 
     /* Panels */
-    .panel {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+    .panel-box {
+      background: var(--bg-surface);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border-radius: var(--radius);
+      padding: 24px;
     }
 
     .hidden { display: none !important; }
 
-    /* Enrollment Studio Radar View */
-    .enroll-grid {
+    /* Enrollment Grid (Clean box & 9-matrix angle layout) */
+    .enroll-layout {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 30px;
-      align-items: center;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
     }
 
-    .camera-radar-container {
-      position: relative;
-      width: 380px;
-      height: 380px;
-      margin: 0 auto;
+    .camera-box-wrap {
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .radar-circle {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      animation: rotateSlow 40s linear infinite;
-    }
-
-    @keyframes rotateSlow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .camera-feed-circle {
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 3px solid var(--accent);
-      box-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
-      position: relative;
+    .camera-frame {
+      width: 360px;
+      height: 270px;
       background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
     }
 
     #webcamVideo {
@@ -202,453 +170,424 @@
       transform: scaleX(-1);
     }
 
-    /* 9 Angle Target Nodes */
-    .angle-node {
+    /* Crosshair overlay */
+    .crosshair-h, .crosshair-v {
       position: absolute;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: #111420;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+    }
+    .crosshair-h { top: 50%; left: 15%; right: 15%; height: 1px; }
+    .crosshair-v { left: 50%; top: 15%; bottom: 15%; width: 1px; }
+
+    /* 3x3 Angle Grid */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .matrix-cell {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 6px;
+      font-family: var(--font-mono);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
+      text-align: center;
       color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.3s ease;
-      z-index: 10;
+      transition: all 0.15s ease;
     }
 
-    .angle-node.done {
-      background: var(--accent);
-      border-color: #fff;
-      color: #000;
-      box-shadow: 0 0 15px var(--accent);
+    .matrix-cell:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-focus);
     }
 
-    .angle-node.active-target {
+    .matrix-cell.done {
+      background: #0f2e22;
       border-color: var(--accent-green);
-      color: #fff;
-      animation: pulseTarget 1.2s infinite alternate;
+      color: #4ade80;
     }
 
-    @keyframes pulseTarget {
-      from { transform: scale(1); box-shadow: 0 0 5px var(--accent-green); }
-      to { transform: scale(1.15); box-shadow: 0 0 20px var(--accent-green); }
+    .matrix-cell.target {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #0c2136;
     }
 
-    /* Position the 9 targets */
-    .pos-center { top: calc(50% - 19px); left: calc(50% - 19px); z-index: 20; opacity: 0.8; }
-    .pos-top { top: 8px; left: calc(50% - 19px); }
-    .pos-top-right { top: 45px; right: 45px; }
-    .pos-right { top: calc(50% - 19px); right: 8px; }
-    .pos-bottom-right { bottom: 45px; right: 45px; }
-    .pos-bottom { bottom: 8px; left: calc(50% - 19px); }
-    .pos-bottom-left { bottom: 45px; left: 45px; }
-    .pos-left { top: calc(50% - 19px); left: 8px; }
-    .pos-top-left { top: 45px; left: 45px; }
-
-    /* Enrollment Controls */
-    .enroll-form {
+    /* Form Inputs */
+    .field-group {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 6px;
+      margin-bottom: 14px;
     }
 
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .input-label {
-      font-size: 13px;
+    .field-label {
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-mono);
     }
 
-    .text-input {
-      background: rgba(0, 0, 0, 0.4);
+    .input-box {
+      background: var(--bg-panel);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
+      border-radius: var(--radius);
+      padding: 10px 14px;
       color: #fff;
       font-family: var(--font);
-      font-size: 15px;
+      font-size: 14px;
       outline: none;
-      transition: border 0.2s;
     }
 
-    .text-input:focus {
+    .input-box:focus {
       border-color: var(--accent);
     }
 
+    /* Buttons */
     .btn {
-      background: var(--accent-grad);
+      background: #fff;
       color: #000;
-      border: none;
-      padding: 14px 24px;
-      border-radius: 12px;
+      border: 1px solid #fff;
+      border-radius: var(--radius);
+      padding: 10px 18px;
       font-family: var(--font);
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.2s;
+      transition: background 0.15s;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 242, 254, 0.4);
+      background: #e2e8f0;
     }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
+    .btn-dark {
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--border);
     }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow: none;
+
+    .btn-dark:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-focus);
     }
 
     /* Progress bar */
-    .progress-bar-bg {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 99px;
-      overflow: hidden;
-      margin: 8px 0;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--accent-grad);
-      transition: width 0.3s ease;
-    }
-
-    /* Face Lab / Verification Tester */
-    .meter-container {
-      margin: 20px 0;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 14px;
+    .progress-box {
+      height: 6px;
+      background: var(--bg-panel);
       border: 1px solid var(--border);
-    }
-
-    .similarity-bar-bg {
-      height: 24px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      position: relative;
+      border-radius: var(--radius);
       overflow: hidden;
-      margin-top: 10px;
+      margin: 6px 0 14px 0;
     }
 
-    .similarity-bar-fill {
+    .progress-fill {
       height: 100%;
       width: 0%;
-      background: var(--accent-grad);
-      transition: width 0.2s ease, background 0.2s;
+      background: var(--accent);
+      transition: width 0.2s ease;
     }
 
-    .threshold-marker {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: #ffcc00;
-      box-shadow: 0 0 8px #ffcc00;
+    /* Metric Cards */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .metric-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-family: var(--font-mono);
+    }
+
+    .metric-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-val {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
     }
 
     /* Identities List Table */
-    .identity-card {
+    .id-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-panel);
       border: 1px solid var(--border);
-      padding: 14px 20px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-      transition: all 0.2s;
-    }
-
-    .identity-card:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-active);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Floating Dynamic Island Notch Simulation Bar -->
-  <div class="notch-container">
-    <div class="notch-pill" id="notchPill" onclick="triggerScanSimulation()">
-      <svg class="notch-icon" viewBox="0 0 24 24">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-      </svg>
-      <span class="notch-status" id="notchStatus">Glance Notch • Ready</span>
+  <!-- Top Status Bar -->
+  <div class="top-status-bar">
+    <div><b>GLANCE DAEMON</b> <span style="color: var(--text-muted);">| SYSTEMD-LOGIND ACTIVE</span></div>
+    <div class="status-badge" onclick="testUnlockSignal()">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusLabel">SYSTEM READY (CLICK TO TEST UNLOCK)</span>
     </div>
   </div>
 
-  <div class="app-wrapper">
-    <!-- Header & Navigation -->
-    <div class="header-bar">
-      <div class="brand-title">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="url(#blueGrad)">
-          <defs>
-            <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#4facfe"/>
-            </linearGradient>
-          </defs>
-          <path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z"/>
-        </svg>
-        MukaLuJauh Studio
+  <div class="app-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-text">
+        <span>[#]</span> MUKALUJAUH STUDIO
       </div>
-      <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('enroll')">Face Enrollment</button>
-        <button class="nav-tab" onclick="switchTab('facelab')">Face Lab & Verify</button>
-        <button class="nav-tab" onclick="switchTab('settings')">Settings</button>
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('enroll')">Enrollment</button>
+        <button class="tab-btn" onclick="switchTab('facelab')">Face Lab</button>
+        <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
       </div>
     </div>
 
-    <!-- 1. ENROLLMENT TAB -->
-    <div class="panel" id="enrollPanel">
-      <div class="enroll-grid">
-        <!-- Circular Radar Camera -->
-        <div class="camera-radar-container">
-          <div class="radar-circle"></div>
-          <div class="camera-feed-circle">
+    <!-- 1. ENROLLMENT -->
+    <div class="panel-box" id="enrollPanel">
+      <div class="enroll-layout">
+        <div class="camera-box-wrap">
+          <div class="camera-frame">
             <video id="webcamVideo" autoplay playsinline muted></video>
+            <div class="crosshair-h"></div>
+            <div class="crosshair-v"></div>
           </div>
 
-          <!-- 9 Angle Target Indicators -->
-          <div class="angle-node pos-top" id="node_top" onclick="captureAngle('Tilt Up', 'node_top')">TOP</div>
-          <div class="angle-node pos-top-right" id="node_tr" onclick="captureAngle('Top Right', 'node_tr')">TR</div>
-          <div class="angle-node pos-right" id="node_right" onclick="captureAngle('Look Right', 'node_right')">R</div>
-          <div class="angle-node pos-bottom-right" id="node_br" onclick="captureAngle('Bottom Right', 'node_br')">BR</div>
-          <div class="angle-node pos-bottom" id="node_bottom" onclick="captureAngle('Tilt Down', 'node_bottom')">BOT</div>
-          <div class="angle-node pos-bottom-left" id="node_bl" onclick="captureAngle('Bottom Left', 'node_bl')">BL</div>
-          <div class="angle-node pos-left" id="node_left" onclick="captureAngle('Look Left', 'node_left')">L</div>
-          <div class="angle-node pos-top-left" id="node_tl" onclick="captureAngle('Top Left', 'node_tl')">TL</div>
-          <div class="angle-node pos-center active-target" id="node_center" onclick="captureAngle('Center', 'node_center')">CTR</div>
+          <!-- 3x3 Angle Matrix -->
+          <div class="matrix-grid">
+            <div class="matrix-cell" id="n_tl" onclick="captureAngle('Top Left', 'n_tl')">TOP-LEFT</div>
+            <div class="matrix-cell" id="n_top" onclick="captureAngle('Tilt Up', 'n_top')">UP</div>
+            <div class="matrix-cell" id="n_tr" onclick="captureAngle('Top Right', 'n_tr')">TOP-RIGHT</div>
+            <div class="matrix-cell" id="n_l" onclick="captureAngle('Look Left', 'n_l')">LEFT</div>
+            <div class="matrix-cell target" id="n_ctr" onclick="captureAngle('Center', 'n_ctr')">CENTER</div>
+            <div class="matrix-cell" id="n_r" onclick="captureAngle('Look Right', 'n_r')">RIGHT</div>
+            <div class="matrix-cell" id="n_bl" onclick="captureAngle('Bottom Left', 'n_bl')">BOT-LEFT</div>
+            <div class="matrix-cell" id="n_bot" onclick="captureAngle('Tilt Down', 'n_bot')">DOWN</div>
+            <div class="matrix-cell" id="n_br" onclick="captureAngle('Bottom Right', 'n_br')">BOT-RIGHT</div>
+          </div>
         </div>
 
-        <!-- Enrollment Details & Progress -->
-        <div class="enroll-form">
-          <h2 style="font-size: 22px;">9-Pose Face Enrollment</h2>
-          <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
-            Hadap webcam dan putar kepala Anda ke 9 arah sudut untuk membentuk <b>Centroid Embedding 512-Dimensi</b> yang akurat dan aman.
+        <div>
+          <h2 style="font-size: 16px; margin-bottom: 6px; font-weight: 700;">Record Face Embeddings (9-Poses)</h2>
+          <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 16px;">
+            Extracts normalized 512-D vectors across 9 head angles. Data is immediately encrypted with AES-256-GCM.
           </p>
 
-          <div class="input-group">
-            <label class="input-label">Identity Name</label>
-            <input type="text" id="enrollName" class="text-input" placeholder="e.g. Endri Susanto" value="Endri" />
+          <div class="field-group">
+            <label class="field-label">Identity Name</label>
+            <input type="text" id="enrollName" class="input-box" value="Endri Susanto" />
           </div>
 
-          <div class="input-group">
-            <div style="display: flex; justify-content: space-between; font-size: 13px;">
-              <span class="input-label">Angle Completion</span>
-              <span id="progressText" style="color: var(--accent); font-weight: 700;">0 / 9 Captured</span>
+          <div class="field-group">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-family: var(--font-mono);">
+              <span class="field-label">Progress</span>
+              <span id="progressText" style="color: var(--accent);">0 / 9 Recorded</span>
             </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" id="progressBar"></div>
+            <div class="progress-box">
+              <div class="progress-fill" id="progressBar"></div>
             </div>
           </div>
 
-          <div style="display: flex; gap: 12px; margin-top: 10px;">
-            <button class="btn" style="flex: 1;" onclick="autoCaptureNext()">Capture Current Angle</button>
-            <button class="btn btn-secondary" onclick="resetEnrollment()">Reset</button>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="btn" style="flex: 1;" onclick="autoCaptureNext()">Capture Angle</button>
+            <button class="btn btn-dark" onclick="resetEnrollment()">Reset</button>
           </div>
 
-          <button class="btn" style="margin-top: 8px; background: var(--accent-green);" id="saveEnrollBtn" onclick="submitEnrollment()" disabled>
-            💾 Save & Encrypt (AES-256-GCM)
+          <button class="btn btn-dark" style="margin-top: 12px; width: 100%;" id="saveEnrollBtn" onclick="submitEnrollment()" disabled>
+            Save & Encrypt Identity
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 2. FACE LAB & VERIFICATION TAB -->
-    <div class="panel hidden" id="facelabPanel">
-      <h2 style="font-size: 22px; margin-bottom: 8px;">🧪 Face Lab & Real-Time Verifier</h2>
-      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
-        Uji coba pencocokan kemiripan wajah dan deteksi liveness anti-spoofing secara live.
+    <!-- 2. FACE LAB -->
+    <div class="panel-box hidden" id="facelabPanel">
+      <h2 style="font-size: 16px; margin-bottom: 4px; font-weight: 700;">Face Recognition & Liveness Pipeline</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+        Live similarity scoring and anti-spoofing diagnostics.
       </p>
 
-      <div class="meter-container">
-        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-          <span style="font-size: 16px; font-weight: 700;">Live Cosine Similarity</span>
-          <span id="similarityValue" style="font-size: 22px; font-weight: 800; color: var(--accent);">0.892</span>
+      <div style="background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;">
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 13px;">
+          <span>COSINE SIMILARITY</span>
+          <span id="similarityValue" style="color: var(--accent); font-weight: 700;">0.894</span>
         </div>
-
-        <div class="similarity-bar-bg">
-          <div class="similarity-bar-fill" id="simBarFill" style="width: 89%;"></div>
-          <div class="threshold-marker" id="thresholdLine" style="left: 65%;" title="Threshold Cutoff"></div>
+        <div class="progress-box" style="height: 10px; margin-top: 8px;">
+          <div class="progress-fill" id="simBarFill" style="width: 89%;"></div>
         </div>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-muted);">
-          <span>0.0 (Different)</span>
-          <span style="color: #ffcc00;">Threshold: <b id="thresholdDisplay">0.65</b></span>
-          <span>1.0 (Identical)</span>
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">
+          <span>0.00</span>
+          <span>Threshold Cutoff: <b id="thresholdDisplay" style="color: #fff;">0.65</b></span>
+          <span>1.00</span>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;">
-        <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-          <div style="color: var(--text-muted); font-size: 12px;">Eye Aspect Ratio (EAR)</div>
-          <div style="font-size: 20px; font-weight: 700; color: var(--accent-green); margin-top: 4px;">0.31 (Blink OK)</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-title">Eye Aspect Ratio</div>
+          <div class="metric-val" style="color: var(--accent-green);">0.29 (Natural Blink)</div>
         </div>
-        <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-          <div style="color: var(--text-muted); font-size: 12px;">3D Head Micro-Motion</div>
-          <div style="font-size: 20px; font-weight: 700; color: var(--accent); margin-top: 4px;">Live Detected</div>
+        <div class="metric-card">
+          <div class="metric-title">Micro-Motion</div>
+          <div class="metric-val" style="color: var(--accent);">3D Live OK</div>
         </div>
-        <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-          <div style="color: var(--text-muted); font-size: 12px;">Screen Bezel / Reflection</div>
-          <div style="font-size: 20px; font-weight: 700; color: var(--accent-green); margin-top: 4px;">Clean (No Spoof)</div>
+        <div class="metric-card">
+          <div class="metric-title">Screen Reflection</div>
+          <div class="metric-val" style="color: var(--accent-green);">Clean (No Bezel)</div>
         </div>
       </div>
 
-      <button class="btn" style="margin-top: 24px; width: 100%;" onclick="runLiveVerify()">
-        ⚡ Test Lock Screen Unlock Pipeline
+      <button class="btn" style="margin-top: 18px; width: 100%;" onclick="runLiveVerify()">
+        Test Lock Screen Unlock Pipeline
       </button>
     </div>
 
-    <!-- 3. SETTINGS TAB -->
-    <div class="panel hidden" id="settingsPanel">
-      <h2 style="font-size: 22px; margin-bottom: 20px;">⚙️ Configuration & Enrolled Profiles</h2>
+    <!-- 3. SETTINGS -->
+    <div class="panel-box hidden" id="settingsPanel">
+      <h2 style="font-size: 16px; margin-bottom: 14px; font-weight: 700;">System Settings</h2>
 
-      <div style="margin-bottom: 30px;">
-        <h3 style="font-size: 16px; margin-bottom: 12px;">Enrolled Identities</h3>
+      <div style="margin-bottom: 24px;">
+        <div class="field-label" style="margin-bottom: 8px;">Enrolled Identities</div>
         <div id="identitiesList">
-          <div class="identity-card">
+          <div class="id-row">
             <div>
-              <div style="font-weight: 700; font-size: 16px;">Endri Susanto</div>
-              <div style="font-size: 12px; color: var(--text-muted);">9 Angle Samples • AES-256-GCM Encrypted</div>
+              <div style="font-weight: 600; font-size: 14px;">Endri Susanto</div>
+              <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">9 Angle Vectors • Encrypted</div>
             </div>
-            <span style="color: var(--accent-green); font-size: 13px; font-weight: 700;">Active</span>
+            <span style="font-size: 12px; color: var(--accent-green); font-family: var(--font-mono);">ACTIVE</span>
           </div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div class="input-group">
-          <label class="input-label">Match Sensitivity Threshold (<span id="rangeVal">0.65</span>)</label>
-          <input type="range" id="settingThreshold" min="0.4" max="0.95" step="0.01" value="0.65" oninput="document.getElementById('rangeVal').innerText=this.value; document.getElementById('thresholdDisplay').innerText=this.value; document.getElementById('thresholdLine').style.left=(this.value*100)+'%';" />
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="field-group">
+          <label class="field-label">Sensitivity Threshold (<span id="rangeVal">0.65</span>)</label>
+          <input type="range" id="settingThreshold" min="0.4" max="0.95" step="0.01" value="0.65" oninput="document.getElementById('rangeVal').innerText=this.value; document.getElementById('thresholdDisplay').innerText=this.value;" />
         </div>
 
-        <div class="input-group">
-          <label class="input-label">Liveness Anti-Spoofing Strictness</label>
-          <select id="settingLiveness" class="text-input">
+        <div class="field-group">
+          <label class="field-label">Anti-Spoofing Mode</label>
+          <select id="settingLiveness" class="input-box">
             <option value="Light">Light (Motion & Blink)</option>
-            <option value="Heavy">Heavy (Strict Glare + Bezel)</option>
+            <option value="Heavy">Heavy (Strict Bezel & Glare)</option>
             <option value="Off">Off</option>
           </select>
         </div>
       </div>
 
-      <button class="btn" style="margin-top: 24px;" onclick="saveSettings()">
-        💾 Save System Settings
+      <button class="btn" style="margin-top: 16px;" onclick="saveSettings()">
+        Save Settings
       </button>
     </div>
   </div>
 
   <script>
-    // Tab switching
     function switchTab(tabId) {
-      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel-box').forEach(p => p.classList.add('hidden'));
 
       if (tabId === 'enroll') {
-        document.querySelector('.nav-tab:nth-child(1)').classList.add('active');
+        document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
         document.getElementById('enrollPanel').classList.remove('hidden');
       } else if (tabId === 'facelab') {
-        document.querySelector('.nav-tab:nth-child(2)').classList.add('active');
+        document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
         document.getElementById('facelabPanel').classList.remove('hidden');
       } else if (tabId === 'settings') {
-        document.querySelector('.nav-tab:nth-child(3)').classList.add('active');
+        document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
         document.getElementById('settingsPanel').classList.remove('hidden');
         loadSettingsAndIdentities();
       }
     }
 
-    // Start Live Webcam
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
         document.getElementById('webcamVideo').srcObject = stream;
       } catch (err) {
-        console.warn("Webcam access:", err);
+        console.warn("Camera:", err);
       }
     }
     initCamera();
 
-    // 9 Angles management
-    const angleNodes = [
-      { id: 'node_center', label: 'Center' },
-      { id: 'node_top', label: 'Tilt Up' },
-      { id: 'node_tr', label: 'Top Right' },
-      { id: 'node_right', label: 'Look Right' },
-      { id: 'node_br', label: 'Bottom Right' },
-      { id: 'node_bottom', label: 'Tilt Down' },
-      { id: 'node_bl', label: 'Bottom Left' },
-      { id: 'node_left', label: 'Look Left' },
-      { id: 'node_tl', label: 'Top Left' }
+    const nodes = [
+      { id: 'n_ctr', label: 'Center' },
+      { id: 'n_top', label: 'Tilt Up' },
+      { id: 'n_tr', label: 'Top Right' },
+      { id: 'n_r', label: 'Look Right' },
+      { id: 'n_br', label: 'Bottom Right' },
+      { id: 'n_bot', label: 'Tilt Down' },
+      { id: 'n_bl', label: 'Bottom Left' },
+      { id: 'n_l', label: 'Look Left' },
+      { id: 'n_tl', label: 'Top Left' }
     ];
 
     let capturedSamples = [];
-    let currentTargetIndex = 0;
+    let currentIndex = 0;
 
-    function captureAngle(label, nodeId) {
-      const el = document.getElementById(nodeId);
+    function captureAngle(label, cellId) {
+      const el = document.getElementById(cellId);
       if (!el.classList.contains('done')) {
         el.classList.add('done');
-        el.classList.remove('active-target');
+        el.classList.remove('target');
 
-        // Generate synthetic embedding vector (512 dimensions)
         const embedding = new Array(512).fill(0.044);
         embedding[capturedSamples.length % 512] += 0.02;
 
         capturedSamples.push({ pose_label: label, embedding });
 
         const count = capturedSamples.length;
-        document.getElementById('progressText').innerText = `${count} / 9 Captured`;
+        document.getElementById('progressText').innerText = `${count} / 9 Recorded`;
         document.getElementById('progressBar').style.width = `${(count / 9) * 100}%`;
 
         if (count >= 9) {
           document.getElementById('saveEnrollBtn').removeAttribute('disabled');
         } else {
-          // Highlight next
-          currentTargetIndex++;
-          if (currentTargetIndex < angleNodes.length) {
-            document.getElementById(angleNodes[currentTargetIndex].id).classList.add('active-target');
+          currentIndex++;
+          if (currentIndex < nodes.length) {
+            document.getElementById(nodes[currentIndex].id).classList.add('target');
           }
         }
       }
     }
 
     function autoCaptureNext() {
-      if (currentTargetIndex < angleNodes.length) {
-        const target = angleNodes[currentTargetIndex];
-        captureAngle(target.label, target.id);
+      if (currentIndex < nodes.length) {
+        const item = nodes[currentIndex];
+        captureAngle(item.label, item.id);
       }
     }
 
     function resetEnrollment() {
       capturedSamples = [];
-      currentTargetIndex = 0;
-      document.querySelectorAll('.angle-node').forEach(n => {
-        n.classList.remove('done');
-        n.classList.remove('active-target');
+      currentIndex = 0;
+      document.querySelectorAll('.matrix-cell').forEach(c => {
+        c.classList.remove('done');
+        c.classList.remove('target');
       });
-      document.getElementById('node_center').classList.add('active-target');
-      document.getElementById('progressText').innerText = `0 / 9 Captured`;
+      document.getElementById('n_ctr').classList.add('target');
+      document.getElementById('progressText').innerText = `0 / 9 Recorded`;
       document.getElementById('progressBar').style.width = `0%`;
       document.getElementById('saveEnrollBtn').setAttribute('disabled', 'true');
     }
@@ -668,34 +607,31 @@
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          alert(`✅ Profile for "${name}" successfully saved and encrypted with AES-256-GCM!`);
+          alert(`[SUCCESS] Identity for "${name}" stored.`);
           switchTab('settings');
         }
       } catch (e) {
-        alert("Enrolled profile saved locally!");
+        alert("Saved.");
       }
     }
 
-    // Notch Simulation Animation
-    function triggerScanSimulation() {
-      const pill = document.getElementById('notchPill');
-      const status = document.getElementById('notchStatus');
-      pill.className = 'notch-pill scanning';
-      status.innerText = 'Scanning Face...';
-
+    function testUnlockSignal() {
+      const dot = document.getElementById('statusDot');
+      const label = document.getElementById('statusLabel');
+      dot.style.background = '#38bdf8';
+      label.innerText = 'AUTHENTICATING...';
       setTimeout(() => {
-        pill.className = 'notch-pill success';
-        status.innerText = '✓ Unlocked • Endri Susanto';
+        dot.style.background = '#22c55e';
+        label.innerText = 'UNLOCK SUCCESS (PAM_SUCCESS)';
         setTimeout(() => {
-          pill.className = 'notch-pill';
-          status.innerText = 'Glance Notch • Ready';
-        }, 2500);
-      }, 1200);
+          label.innerText = 'SYSTEM READY (CLICK TO TEST UNLOCK)';
+        }, 2000);
+      }, 900);
     }
 
     async function runLiveVerify() {
-      triggerScanSimulation();
-      const sim = (0.85 + Math.random() * 0.1).toFixed(3);
+      testUnlockSignal();
+      const sim = (0.86 + Math.random() * 0.08).toFixed(3);
       document.getElementById('similarityValue').innerText = sim;
       document.getElementById('simBarFill').style.width = `${sim * 100}%`;
     }
@@ -711,19 +647,17 @@
           const listEl = document.getElementById('identitiesList');
           if (data.identities.length > 0) {
             listEl.innerHTML = data.identities.map(id => `
-              <div class="identity-card">
+              <div class="id-row">
                 <div>
-                  <div style="font-weight: 700; font-size: 16px;">${id.name}</div>
-                  <div style="font-size: 12px; color: var(--text-muted);">${id.sample_count} Angle Samples • AES-256-GCM Encrypted</div>
+                  <div style="font-weight: 600; font-size: 14px;">${id.name}</div>
+                  <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">${id.sample_count} Samples • Encrypted</div>
                 </div>
-                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="deleteIdentity('${id.name}')">Delete</button>
+                <button class="btn btn-dark" style="padding: 4px 10px; font-size: 11px;" onclick="deleteIdentity('${id.name}')">DELETE</button>
               </div>
             `).join('');
           }
         }
-      } catch (e) {
-        console.log("Offline mode or preview");
-      }
+      } catch (e) {}
     }
 
     async function saveSettings() {
@@ -742,7 +676,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      alert("Settings updated!");
+      alert("Settings saved.");
     }
 
     async function deleteIdentity(name) {
