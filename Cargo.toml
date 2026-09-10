@@ -1,6 +1,6 @@
 [package]
 name = "mukalujauh"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 authors = ["Endri Susanto <endri@example.com>"]
 description = "Fast, privacy-first Face Unlock for Linux (Ubuntu) & Windows inspired by Glance"
@@ -24,6 +24,8 @@ rpassword = "7.3"
 directories = "5.0"
 tiny_http = "0.12"
 open = "5.3"
+wry = "0.47"
+tao = "0.30"
 
 # Target specific dependencies for Linux
 [target.'cfg(target_os = "linux")'.dependencies]

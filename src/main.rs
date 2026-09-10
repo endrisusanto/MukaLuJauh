@@ -130,8 +130,8 @@ fn main() -> Result<()> {
     });
 
     match cmd {
-        Commands::Gui { port, no_browser } => {
-            GuiServer::run(port, !no_browser)?;
+        Commands::Gui { port, no_browser: _ } => {
+            GuiServer::run_desktop_window(port)?;
         }
 
         Commands::Info => {
