@@ -7,8 +7,6 @@ InstallDirRegKey HKLM "Software\MukaLuJauh" "InstallDir"
 RequestExecutionLevel admin
 
 !define MUI_ABORTWARNING
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\orange-install.ico"
-!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\orange-uninstall.ico"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
@@ -30,7 +28,7 @@ Section "Install"
 
   # Register in Windows Add/Remove Programs
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "DisplayName" "MukaLuJauh - Face Unlock"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "DisplayVersion" "0.1.2"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "DisplayVersion" "0.1.3"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "Publisher" "Endri Susanto"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "UninstallString" "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MukaLuJauh" "QuietUninstallString" "$INSTDIR\uninstall.exe /S"
