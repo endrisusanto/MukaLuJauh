@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            binary_name: mukalujauh
+            archive_format: tar.gz
+          # Windows x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary_name: mukalujauh.exe
+            archive_format: zip
+          # macOS ARM64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            binary_name: mukalujauh
+            archive_format: tar.gz
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build Release Binary
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Package Binary (Unix)
+        if: matrix.archive_format == 'tar.gz'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czf ../../../mukalujauh-${{ matrix.target }}.tar.gz ${{ matrix.binary_name }}
+          cd ../../..
+          sha256sum mukalujauh-${{ matrix.target }}.tar.gz > mukalujauh-${{ matrix.target }}.tar.gz.sha256
+
+      - name: Package Binary (Windows)
+        if: matrix.archive_format == 'zip'
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ../../../mukalujauh-${{ matrix.target }}.zip
+          cd ../../..
+          Get-FileHash -Algorithm SHA256 mukalujauh-${{ matrix.target }}.zip | ForEach-Object { "$($_.Hash)  mukalujauh-${{ matrix.target }}.zip" } | Out-File -Encoding ascii mukalujauh-${{ matrix.target }}.zip.sha256
+
+      - name: Upload Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            mukalujauh-${{ matrix.target }}.*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
