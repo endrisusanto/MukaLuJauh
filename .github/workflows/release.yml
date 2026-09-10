@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag / Release version (e.g. v0.1.1)'
+        required: false
+        default: 'v0.1.1'
 
 permissions:
   contents: write
@@ -63,10 +68,21 @@ jobs:
           cd ../../..
           Get-FileHash -Algorithm SHA256 mukalujauh-${{ matrix.target }}.zip | ForEach-Object { "$($_.Hash)  mukalujauh-${{ matrix.target }}.zip" } | Out-File -Encoding ascii mukalujauh-${{ matrix.target }}.zip.sha256
 
+      - name: Determine Release Tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ github.event.inputs.tag_name || 'v0.1.1' }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
       - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
           files: |
             mukalujauh-${{ matrix.target }}.*
           generate_release_notes: true
