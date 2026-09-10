@@ -214,6 +214,20 @@ impl GuiServer {
             .map_err(|e| anyhow::anyhow!("Failed to create native desktop window: {}", e))?;
 
         // Initialize Native WebView inside the Desktop Window
+        #[cfg(target_os = "linux")]
+        let _webview = {
+            use tao::platform::unix::WindowExtUnix;
+            use wry::WebViewBuilderExtUnix;
+            let vbox = window
+                .default_vbox()
+                .ok_or_else(|| anyhow::anyhow!("Failed to get GTK default vbox"))?;
+            WebViewBuilder::new()
+                .with_url(&url)
+                .build_gtk(vbox)
+                .map_err(|e| anyhow::anyhow!("Failed to build Linux WebView: {}", e))?
+        };
+
+        #[cfg(not(target_os = "linux"))]
         let _webview = WebViewBuilder::new()
             .with_url(&url)
             .build(&window)
