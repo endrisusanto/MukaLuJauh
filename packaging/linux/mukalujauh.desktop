@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=MukaLuJauh
+GenericName=Face Unlock Studio
+Comment=Fast, privacy-first Face Unlock Studio inspired by Glance
+Exec=/usr/bin/mukalujauh gui
+Icon=mukalujauh
+Terminal=false
+Type=Application
+Categories=Utility;Security;Settings;System;
+Keywords=face;unlock;glance;biometrics;security;camera;
+StartupNotify=true
+StartupWMClass=mukalujauh

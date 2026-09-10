@@ -1,6 +1,6 @@
 [package]
 name = "mukalujauh"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 authors = ["Endri Susanto <endri@example.com>"]
 description = "Fast, privacy-first Face Unlock for Linux (Ubuntu) & Windows inspired by Glance"
@@ -51,13 +51,17 @@ Uses on-device face embedding matching with liveness anti-spoofing detection."""
 section = "utils"
 priority = "optional"
 assets = [
-    ["target/release/mukalujauh", "usr/local/bin/mukalujauh", "755"],
+    ["target/release/mukalujauh", "usr/bin/mukalujauh", "755"],
+    ["packaging/linux/mukalujauh.desktop", "usr/share/applications/mukalujauh.desktop", "644"],
+    ["packaging/linux/mukalujauh.svg", "usr/share/icons/hicolor/scalable/apps/mukalujauh.svg", "644"],
     ["README.md", "usr/share/doc/mukalujauh/README", "644"],
 ]
 
 # Fedora / RHEL .rpm package metadata
 [package.metadata.generate-rpm]
 assets = [
-    { source = "target/release/mukalujauh", dest = "/usr/local/bin/mukalujauh", mode = "755" },
+    { source = "target/release/mukalujauh", dest = "/usr/bin/mukalujauh", mode = "755" },
+    { source = "packaging/linux/mukalujauh.desktop", dest = "/usr/share/applications/mukalujauh.desktop", mode = "644" },
+    { source = "packaging/linux/mukalujauh.svg", dest = "/usr/share/icons/hicolor/scalable/apps/mukalujauh.svg", mode = "644" },
     { source = "README.md", dest = "/usr/share/doc/mukalujauh/README.md", mode = "644" }
 ]
